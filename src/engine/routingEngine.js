@@ -3,6 +3,7 @@
  * via webhooks, recording each attempt in resource_allocations.
  * Only anonymized allocation data is sent (no family identity or intake payload).
  */
+const crypto = require('crypto');
 const db = require('../../db');
 
 const MAX_ATTEMPTS = Number(process.env.WEBHOOK_MAX_ATTEMPTS || 3);
@@ -23,14 +24,24 @@ function isSafeWebhookUrl(raw) {
   return true;
 }
 
-async function postWithRetry(url, body) {
+// HMAC-SHA256 over `${timestamp}.${rawBody}`; header format: t=<unix>,v1=<hex>
+function signPayload(rawBody, secret, timestamp = Math.floor(Date.now() / 1000)) {
+  const v1 = crypto.createHmac('sha256', secret).update(`${timestamp}.${rawBody}`).digest('hex');
+  return `t=${timestamp},v1=${v1}`;
+}
+
+async function postWithRetry(url, body, secret) {
   let lastError;
+  const rawBody = JSON.stringify(body);
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(secret ? { 'X-BEAST-Signature': signPayload(rawBody, secret) } : {})
+        },
+        body: rawBody,
         redirect: 'error',
         signal: AbortSignal.timeout(TIMEOUT_MS)
       });
@@ -54,7 +65,7 @@ async function dispatchResource(payload) {
 
   for (const pathway of approvedPathways) {
     const { rows: partners } = await db.query(
-      `SELECT id, webhook_url FROM partner_organizations
+      `SELECT id, webhook_url, webhook_secret FROM partner_organizations
        WHERE status = 'active' AND webhook_url IS NOT NULL AND pathways ? $1`,
       [pathway]
     );
@@ -62,7 +73,10 @@ async function dispatchResource(payload) {
 
     for (const partner of partners) {
       let result;
-      if (!isSafeWebhookUrl(partner.webhook_url)) {
+      const secret = partner.webhook_secret || process.env.WEBHOOK_SIGNING_SECRET;
+      if (!secret) {
+        result = { ok: false, attempts: 0, error: 'No signing secret configured' };
+      } else if (!isSafeWebhookUrl(partner.webhook_url)) {
         result = { ok: false, attempts: 0, error: 'Unsafe webhook URL' };
       } else {
         result = await postWithRetry(partner.webhook_url, {
@@ -70,7 +84,7 @@ async function dispatchResource(payload) {
           pathway,
           priorityLevel,
           sentAt: new Date().toISOString()
-        });
+        }, secret);
       }
       await db.query(
         `INSERT INTO resource_allocations (intake_id, partner_id, resource_type, status, attempts, last_error)
@@ -83,4 +97,4 @@ async function dispatchResource(payload) {
   return summary;
 }
 
-module.exports = { dispatchResource, isSafeWebhookUrl, postWithRetry };
+module.exports = { signPayload, dispatchResource, isSafeWebhookUrl, postWithRetry };
