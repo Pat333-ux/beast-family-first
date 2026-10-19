@@ -9,14 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "jsonwebtoken": "^9.0.2",
     "next": "16.4.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "@eslint/js": "10.13.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "postcss": "^8.5.31",
     "tailwindcss": "^4"
   }
 }
