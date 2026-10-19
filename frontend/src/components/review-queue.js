@@ -145,8 +145,8 @@ export default function ReviewQueue() {
             <div className="mt-5 grid gap-3 rounded-2xl border border-[#e4e9e3] p-4 text-sm sm:grid-cols-2">
               <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">County</span><span className="mt-1 block">{selected.county || "Not provided"}</span></p>
               <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Children in household</span><span className="mt-1 block">{selected.dependentsCount ?? "Not provided"}</span></p>
-              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Email</span><a className="mt-1 block break-all text-[#185c4b] underline" href={`mailto:${selected.email}`}>{selected.email || "Not provided"}</a></p>
-              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Phone</span><a className="mt-1 block text-[#185c4b] underline" href={`tel:${selected.phone}`}>{selected.phone || "Not provided"}</a></p>
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Email</span><a className="mt-1 block break-all text-[#185c4b] underline" href={selected.email ? `mailto:${selected.email}` : undefined}>{selected.email || "Not provided"}</a></p>
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Phone</span><a className="mt-1 block text-[#185c4b] underline" href={selected.phone ? `tel:${selected.phone}` : undefined}>{selected.phone || "Not provided"}</a></p>
               <p className="sm:col-span-2"><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Needs identified</span><span className="mt-1 block">{Array.isArray(selected.needs) && selected.needs.length ? selected.needs.join(", ") : "No needs selected"}</span></p>
             </div>
             <div className="mt-6">

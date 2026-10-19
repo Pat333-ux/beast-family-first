@@ -29,6 +29,16 @@ function createApp({
     ...(dispatchWebhook ? { dispatchWebhook } : {}),
   }));
   app.use('/api/v1/analytics', createAnalyticsRouter({ pool, jwtSecret }));
+  app.use((error, _req, res, next) => {
+    if (res.headersSent) return next(error);
+    if (error.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Request body is too large.' });
+    }
+    if (error.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'A valid JSON request is required.' });
+    }
+    return res.status(500).json({ error: 'Internal server error.' });
+  });
   return app;
 }
 

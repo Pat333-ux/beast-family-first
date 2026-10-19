@@ -45,7 +45,11 @@ function validateIntake(body) {
   return null;
 }
 
-function createIntakeRouter({ pool, encryptionKey = process.env.INTAKE_ENCRYPTION_KEY } = {}) {
+function createIntakeRouter({
+  pool,
+  encryptionKey = process.env.INTAKE_ENCRYPTION_KEY,
+  encrypt = encryptIntake,
+} = {}) {
   if (!pool || typeof pool.connect !== 'function') {
     throw new TypeError('A PostgreSQL pool is required');
   }
@@ -58,7 +62,7 @@ function createIntakeRouter({ pool, encryptionKey = process.env.INTAKE_ENCRYPTIO
     let encrypted;
     try {
       const { fullName, email, phone, county, dependentsCount, needs } = req.body;
-      encrypted = encryptIntake({
+      encrypted = encrypt({
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: typeof phone === 'string' ? phone.trim() : '',
@@ -84,8 +88,9 @@ function createIntakeRouter({ pool, encryptionKey = process.env.INTAKE_ENCRYPTIO
       assessment.suggestedPathways.push('TRAUMA_PREVENTION_PATHWAY');
     }
 
-    const client = await pool.connect();
+    let client;
     try {
+      client = await pool.connect();
       await client.query('BEGIN');
       const result = await client.query(
         `INSERT INTO intake_requests
@@ -128,10 +133,10 @@ function createIntakeRouter({ pool, encryptionKey = process.env.INTAKE_ENCRYPTIO
         },
       });
     } catch {
-      await client.query('ROLLBACK');
+      if (client) await client.query('ROLLBACK').catch(() => {});
       return res.status(500).json({ error: 'Unable to submit intake application.' });
     } finally {
-      client.release();
+      client?.release();
     }
   });
 

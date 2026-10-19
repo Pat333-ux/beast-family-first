@@ -18,7 +18,8 @@ per pathway (for example, `{"HOUSING_STABILIZATION_GRANT":15000}`); estimates
 default to zero and are not measured outcomes. Generate encryption and signing
 keys with a secrets manager or `openssl rand -base64 32`. Apply database
 migrations with `npm run migrate`, then start the API with `npm start`. Run
-tests with `npm test`.
+tests with `npm test`. Run the backend routes' enforced 100% coverage suite with
+`npm run test:api:coverage`.
 
 The first Administrator must be provisioned out of band with a bcrypt password
 hash; public registration is not available. Do not use real family data until

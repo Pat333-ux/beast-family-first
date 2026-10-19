@@ -149,9 +149,10 @@ function createReviewRouter({
       return res.status(400).json({ error: 'Select valid, unique resource pathways.' });
     }
 
-    const client = await pool.connect();
+    let client;
     let intake;
     try {
+      client = await pool.connect();
       await client.query('BEGIN');
       const result = await client.query(
         `SELECT id, tracking_id, status, priority, risk_score, assessment
@@ -204,10 +205,10 @@ function createReviewRouter({
       });
       await client.query('COMMIT');
     } catch {
-      await client.query('ROLLBACK').catch(() => {});
+      if (client) await client.query('ROLLBACK').catch(() => {});
       return res.status(500).json({ error: 'Unable to save the case review.' });
     } finally {
-      client.release();
+      client?.release();
     }
 
     let routingStatus = 'not_applicable';

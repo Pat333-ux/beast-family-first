@@ -1,95 +1,94 @@
-BEAST FAMILY FIRST API CONTRACTS
+# BEAST FAMILY FIRST API CONTRACTS
+
 Base URL
-/api
+
+`/api`
 
 Health Check
-GET /api/health
+`GET /api/health`
 
 Response
 
-{ "status": "ok", "mode": "local-demo" }
+`{ "status": "ok" }`
 
 Create Intake
-POST /api/intakes
+`POST /api/v1/intake`
 
 Request
 
-{ "scores": { "housing": 80, "food": 75, "employment": 60, "mentalHealth": 70, "householdStress": 65, "childWellbeing": 90 }, "needs": [ "housing", "food", "mentalHealth" ] }
+{
+  "fullName": "Taylor Example",
+  "email": "taylor@example.org",
+  "phone": "",
+  "county": "Marion",
+  "dependentsCount": 2,
+  "needs": ["food"]
+}
 
 Response
 
-{ "case": { "id": "uuid", "status": "pending_review", "assessment": { "score": 73, "priority": "Preventive support" } } }
+{
+  "case": {
+    "id": "uuid",
+    "trackingId": "INT-2026-1234ABCD",
+    "status": "pending_review",
+    "assessment": {
+      "score": 25,
+      "priority": "STANDARD",
+      "requiresHumanReview": true
+    }
+  }
+}
 
-List Cases
-GET /api/cases
+Review Queue
+
+`GET /api/v1/review/queue` — requires Caseworker, Supervisor, or Administrator.
 
 Response
 
 { "cases": [] }
 
-Get Single Case
-GET /api/cases/{id}
+Approve Case
+
+`POST /api/v1/review/approve` — requires Caseworker, Supervisor, or Administrator.
+
+`{ "caseId": "uuid", "pathways": ["HOUSING_STABILIZATION_GRANT"], "notes": "Reviewed with family." }`
+
+Denial requires a non-empty `notes` reason.
+
+`POST /api/v1/review/deny` — same role requirement and request shape.
 
 Response
 
-{ "id": "uuid", "status": "pending_review", "assessment": {}, "resources": [] }
-
-Review Case
-POST /api/cases/{id}/review
-
-Request
-
-{ "decision": "approved", "reviewer": "Case Worker", "notes": "Eligibility confirmed." }
-
-Response
-
-{ "case": { "id": "uuid", "status": "approved" } }
+`{ "case": { "id": "uuid", "status": "approved" }, "routing": { "status": "dispatched" } }`
 
 Dashboard Metrics
-GET /api/dashboard
+
+`GET /api/v1/analytics/metrics` — requires Supervisor, Administrator, or Auditor.
 
 Response
 
-{ "familiesServed": 1000, "casesOpen": 145, "casesClosed": 855, "evictionsPrevented": 200, "stabilityRate": 82 }
-
-Resource Routing
-POST /api/route
-
-Request
-
-{ "needs": [ "housing", "food", "employment" ] }
-
-Response
-
-{ "resources": [ { "need": "housing", "resource": "Rental Assistance Navigation" }, { "need": "food", "resource": "SNAP Navigation" } ] }
-
-Future Endpoints
-POST /api/auth/login
-
-POST /api/auth/logout
-
-GET /api/users
-
-GET /api/audit-logs
-
-GET /api/reports
-
-POST /api/agency-sync
-
-POST /api/predictive-analysis
-
-GET /api/analytics
-
-Security Requirements
-All future endpoints must support:
+{
+  "intakeVolumeByPriority": { "EMERGENCY": 0, "URGENT": 0, "STANDARD": 0 },
+  "averageProcessingMinutes": null,
+  "averageResolutionHours": null,
+  "resourceFulfillmentByCategory": {},
+  "estimatedIndianaCostSavings": 0,
+  "savingsEstimateSource": "Configured pathway estimates for webhook-dispatched assignments; zero when no estimates are configured."
+}
 
 Authentication
-Authorization
-Audit Logging
-Rate Limiting
-TLS Encryption
-Request Validation
-Version
-v1.0
+
+`POST /api/v1/auth/login`
+
+`POST /api/v1/auth/register` — Administrator only.
+
+Staff routes require a signed bearer JWT in the Authorization header. Intake
+details are encrypted with AES-256-GCM at rest; review and analytics access is
+role-restricted and audited. Partner webhook delivery uses the
+`X-BEAST-Signature` HMAC-SHA256 header.
+
+Not yet implemented: resource completion reporting, general user listing,
+reports, agency sync, and predictive analysis.
 
 Project: BEAST Family First Government Platform
