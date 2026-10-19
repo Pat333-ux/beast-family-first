@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS intake_requests (
   risk_factors JSONB NOT NULL DEFAULT '[]',
   suggested_pathways JSONB NOT NULL DEFAULT '[]',
   encrypted_payload TEXT,
-  assigned_worker UUID,
+  approved_pathways JSONB NOT NULL DEFAULT '[]',
+  approved_at TIMESTAMPTZ,
+  assigned_worker VARCHAR(255),
   reviewer_notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -37,6 +39,7 @@ CREATE TABLE IF NOT EXISTS partner_organizations (
   contact_name VARCHAR(255),
   contact_email VARCHAR(255),
   webhook_url TEXT,
+  pathways JSONB NOT NULL DEFAULT '[]',
   status VARCHAR(50) NOT NULL DEFAULT 'active'
 );
 
@@ -45,7 +48,9 @@ CREATE TABLE IF NOT EXISTS resource_allocations (
   intake_id UUID NOT NULL REFERENCES intake_requests(id),
   partner_id UUID REFERENCES partner_organizations(id),
   resource_type VARCHAR(255),
-  status VARCHAR(50) NOT NULL DEFAULT 'pending',
+  status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','dispatched','failed')),
+  attempts INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT,
   assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   completed_at TIMESTAMPTZ
 );

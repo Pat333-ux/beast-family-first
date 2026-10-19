@@ -12,6 +12,8 @@ app.use(express.json({ limit: '100kb' }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/v1/intake', authenticate, require('./routes/intake'));
+app.use('/api/v1/review', authenticate, require('./routes/review'));
+app.use('/api/v1/analytics', authenticate, require('./routes/analytics'));
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 // eslint-disable-next-line no-unused-vars
