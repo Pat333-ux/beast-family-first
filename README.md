@@ -18,3 +18,11 @@ The first Administrator must be provisioned out of band with a bcrypt password
 hash; public registration is not available. Do not use real family data until
 deployment access controls, secret management, audit requirements, and
 operational safeguards have been reviewed.
+
+## Web portal
+
+The Next.js portal is in [`frontend/`](frontend/). See
+[`frontend/README.md`](frontend/README.md) for local setup and its current API
+integration status. Staff login is connected to the Express authentication
+route; intake, case review, and analytics require backend endpoints that are
+not implemented yet.

@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# BEAST Family First Web Portal
 
-## Getting Started
+## Run locally
 
-First, run the development server:
+1. Configure the Express API with a PostgreSQL `DATABASE_URL`, a 32-byte-or-longer `JWT_SECRET`, and an initial Administrator account. Run database migrations with `npm run migrate`.
+2. Start the API on port 4000: `PORT=4000 npm start` from the repository root.
+3. Copy `.env.example` to `.env.local` in this directory and set `JWT_SECRET` to the same secret used by the API. Keep `.env.local` private.
+4. Install and run the frontend:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```sh
+   npm install
+   npm run dev
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The portal is available at `http://localhost:3000`. Configure production secrets and HTTPS before deployment.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## API integration status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Login is proxied to the existing `POST /api/v1/auth/login` backend route. The review queue and analytics views call the contract endpoints `GET /api/v1/review/queue`, `POST /api/v1/review/approve`, `POST /api/v1/review/deny`, and `GET /api/v1/analytics/metrics`. The intake form calls `POST /api/v1/intake`.
 
-## Learn More
+The current Express application implements only authentication and `GET /api/health`. Intake, review, and analytics endpoints are not implemented yet; the portal reports that condition instead of inventing cases, metrics, successful submissions, or decisions. Do not collect real family information until the backend endpoints and production privacy/security controls are operational.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Staff JWTs are held in an HTTP-only, same-site cookie and verified server-side. Browser code does not read or persist authentication tokens. The BFF limits which backend routes and roles can be used, but the backend must independently enforce authentication and authorization when its case APIs are implemented.

@@ -77,7 +77,7 @@ async function forward(request, context, method) {
       method,
       headers: {
         ...(method === "GET" ? {} : { "Content-Type": "application/json" }),
-        ...(cookie ? { Authorization: `****** } : {}),
+        ...(cookie ? { Authorization: ["Bearer", cookie].join(" ") } : {}),
       },
       ...(method === "GET" ? {} : { body: JSON.stringify(body) }),
       cache: "no-store",
