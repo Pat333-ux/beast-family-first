@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import SiteHeader from "@/components/site-header";
 import { ANALYTICS_ROLES, getSession, REVIEW_ROLES } from "@/lib/server-session";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({ children }) {
   const session = await getSession();
   if (!session) redirect("/login");

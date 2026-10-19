@@ -12,12 +12,17 @@ export async function POST(request) {
 
   let credentials;
   try {
-    credentials = await request.json();
+    const raw = await request.text();
+    if (Buffer.byteLength(raw) > 4096) {
+      return NextResponse.json({ error: "Request body is too large." }, { status: 413 });
+    }
+    credentials = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: "Enter your email and password." }, { status: 400 });
   }
   if (
     typeof credentials?.email !== "string" ||
+    credentials.email.length > 254 ||
     typeof credentials?.password !== "string" ||
     Buffer.byteLength(credentials.password) > 72
   ) {

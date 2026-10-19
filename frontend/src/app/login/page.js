@@ -4,6 +4,8 @@ import LoginForm from "@/components/login-form";
 import SiteHeader from "@/components/site-header";
 import { getSession } from "@/lib/server-session";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage() {
   const session = await getSession();
   if (session) {

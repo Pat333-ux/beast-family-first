@@ -4,6 +4,12 @@ export function backendUrl(path) {
   if (!["http:", "https:"].includes(backend.protocol)) {
     throw new Error("BACKEND_API_URL must use HTTP or HTTPS");
   }
+  if (process.env.NODE_ENV === "production" && backend.protocol !== "https:") {
+    throw new Error("BACKEND_API_URL must use HTTPS in production");
+  }
+  if (backend.username || backend.password) {
+    throw new Error("BACKEND_API_URL must not contain credentials");
+  }
   backend.pathname = `${backend.pathname.replace(/\/$/, "")}${path}`;
   backend.search = "";
   backend.hash = "";
