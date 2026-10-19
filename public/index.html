@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Local demonstration of the BEAST Family First human-services workflow.">
+    <title>BEAST Family First | Local Demo</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="BEAST Family First home">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span><strong>BEAST</strong><small>FAMILY FIRST</small></span>
+      </a>
+      <span class="environment">LOCAL DEMO · NO REAL CASE DATA</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Family preservation command center</p>
+        <h1>Support, coordinated around the family.</h1>
+        <p>This local reference demo shows a single intake, a transparent stability assessment, resource suggestions, and a required human review.</p>
+        <div class="cycle" aria-label="Operating cycle: Assess, Stabilize, Heal, Thrive">
+          <span><b>01</b> Assess</span><i aria-hidden="true">→</i>
+          <span><b>02</b> Stabilize</span><i aria-hidden="true">→</i>
+          <span><b>03</b> Heal</span><i aria-hidden="true">→</i>
+          <span><b>04</b> Thrive</span>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Demo activity">
+        <article class="metric"><span>Demo intakes</span><strong id="metric-total">0</strong></article>
+        <article class="metric"><span>Awaiting human review</span><strong id="metric-pending">0</strong></article>
+        <article class="metric"><span>Reviewed</span><strong id="metric-reviewed">0</strong></article>
+      </section>
+
+      <div class="workspace">
+        <section class="panel intake-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">One family profile</p><h2>Stability intake</h2></div>
+            <span class="step-pill">STEP 1 · ASSESS</span>
+          </div>
+          <p class="muted">Enter demo values only. Scores are self-reported planning inputs—not diagnoses, eligibility decisions, or a substitute for conversation.</p>
+          <form id="intake-form">
+            <fieldset>
+              <legend>Stability indicators <span>0 = urgent need · 100 = stable</span></legend>
+              <div id="score-fields" class="score-fields"></div>
+            </fieldset>
+            <fieldset>
+              <legend>Needs to explore</legend>
+              <div id="need-options" class="need-options"></div>
+            </fieldset>
+            <button class="button primary" type="submit">Create intake for review <span aria-hidden="true">→</span></button>
+            <p id="intake-message" class="message" role="status" aria-live="polite"></p>
+          </form>
+          <aside class="safety-note"><strong>Human review required.</strong> The score does not determine access to services. Suggested resources must be verified with the family and reviewed by an authorized human before any action.</aside>
+        </section>
+
+        <section class="panel queue-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">Family preservation command center</p><h2>Review queue</h2></div>
+            <span class="step-pill">STEP 2 · STABILIZE</span>
+          </div>
+          <p class="muted">Demo cases exist only in memory and are cleared when the server stops.</p>
+          <div id="case-list" class="case-list" aria-live="polite"></div>
+          <p id="queue-empty" class="empty-state">No demo intakes yet. Create one to see the human-review workflow.</p>
+        </section>
+      </div>
+      <p class="footer-note">Reference architecture only · No external integrations, eligibility determinations, predictive profiling, or real case records.</p>
+    </main>
+  </body>
+</html>

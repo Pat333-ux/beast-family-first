@@ -5,7 +5,7 @@ const RESOURCE_OPTIONS = Object.freeze({
   food: ['SNAP enrollment navigation', 'Community pantry connection', 'Emergency grocery support'],
   utilities: ['Utility assistance navigation', 'Utility hardship program referral'],
   employment: ['Workforce program referral', 'Job placement navigation', 'Training program referral'],
-  mentalHealth: ['Community support options', 'Counseling navigation', 'Immediate support network referral'],
+  mentalHealth: ['Mental-health support navigation (human triage required)'],
   householdStress: ['Conflict-resolution resources', 'Family support navigation'],
   childWellbeing: ['Family preservation services', 'Child and caregiver support navigation']
 });
