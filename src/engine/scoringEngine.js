@@ -6,7 +6,7 @@
  * enforces safety guardrails, and routes requests to Human Review or Ledger Dispatch.
  */
 
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('node:crypto');
 
 // Weight Matrix for Systemic Stressors
 const WEIGHTS = {
@@ -89,7 +89,7 @@ function evaluateIntake(intakePayload) {
   // Enforce Guiding Policy: AI cannot approve/deny benefits automatically.
   // AI assigns priority and routes to Human Reviewer with an audit payload.
   const evaluationResult = {
-    assessmentId: uuidv4(),
+    assessmentId: randomUUID(),
     familyId,
     calculatedScore: totalScore,
     priorityLevel,

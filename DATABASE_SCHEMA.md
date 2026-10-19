@@ -241,3 +241,14 @@ must be traceable through audit_logs for accountability, transparency, and compl
 Project: BEAST Family First Government Platform
 
 Version: 1.0
+
+Implemented API storage (migrations `001` and `002`)
+
+`intake_requests` stores risk and workflow metadata while applicant details are
+encrypted with AES-256-GCM across `encrypted_payload`, `encryption_iv`, and
+`encryption_tag`. Configure `INTAKE_ENCRYPTION_KEY` as a 32-byte base64 or hex
+key. `case_reviews` records human decisions and reasons;
+`resource_assignments` records selected pathways, partner dispatch status, and
+optional configured savings estimates; `system_audit_logs` records
+non-payload audit events. The queue exposes decrypted applicant data only to
+authenticated Caseworker, Supervisor, and Administrator roles.

@@ -72,8 +72,8 @@ export default function AnalyticsDashboard() {
       </div>
 
       <section className="mt-6 rounded-2xl border border-[#dce4dc] bg-white p-5 sm:p-6">
-        <h3 className="text-base font-semibold">Resource fulfillment</h3>
-        <p className="mt-1 text-sm text-[#71817a]">Completed or active services by category.</p>
+        <h3 className="text-base font-semibold">Partner-dispatched pathways</h3>
+        <p className="mt-1 text-sm text-[#71817a]">Counts reflect partner webhook acceptance, not confirmed service completion.</p>
         {Object.keys(fulfillment).length ? (
           <div className="mt-5 space-y-4">
             {Object.entries(fulfillment).map(([category, count]) => {

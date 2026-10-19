@@ -15,6 +15,7 @@ describe('authentication routes', () => {
   beforeAll(async () => {
     const passwordHash = await bcrypt.hash(PASSWORD, 4);
     pool = {
+      connect: jest.fn(),
       query: jest.fn(async (sql, params) => {
         if (sql.includes('SELECT user_id')) {
           if (params[0] !== 'worker@example.org') return { rows: [] };

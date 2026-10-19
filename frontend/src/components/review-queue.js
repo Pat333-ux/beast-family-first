@@ -65,6 +65,10 @@ export default function ReviewQueue() {
   }
 
   async function decide(decision) {
+    if (decision === "deny" && !notes.trim()) {
+      setError("Add a reason before denying this request.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -135,8 +139,15 @@ export default function ReviewQueue() {
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl bg-[#f5f7f3] p-4">
               <UrgencyBadge priority={priorityOf(selected)} />
-              <span className="text-sm text-[#60736c]">Score: {selected.assessment?.score ?? selected.calculatedScore ?? "Not provided"}</span>
+              <span className="text-sm text-[#60736c]">Score: {selected.riskScore ?? selected.assessment?.score ?? selected.assessment?.calculatedScore ?? "Not provided"}</span>
               <span className="text-sm text-[#60736c]">Status: {selected.status || "Pending review"}</span>
+            </div>
+            <div className="mt-5 grid gap-3 rounded-2xl border border-[#e4e9e3] p-4 text-sm sm:grid-cols-2">
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">County</span><span className="mt-1 block">{selected.county || "Not provided"}</span></p>
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Children in household</span><span className="mt-1 block">{selected.dependentsCount ?? "Not provided"}</span></p>
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Email</span><a className="mt-1 block break-all text-[#185c4b] underline" href={`mailto:${selected.email}`}>{selected.email || "Not provided"}</a></p>
+              <p><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Phone</span><a className="mt-1 block text-[#185c4b] underline" href={`tel:${selected.phone}`}>{selected.phone || "Not provided"}</a></p>
+              <p className="sm:col-span-2"><span className="block text-xs font-bold uppercase tracking-wider text-[#71817a]">Needs identified</span><span className="mt-1 block">{Array.isArray(selected.needs) && selected.needs.length ? selected.needs.join(", ") : "No needs selected"}</span></p>
             </div>
             <div className="mt-6">
               <h3 className="text-sm font-semibold">Suggested pathways</h3>
@@ -155,8 +166,8 @@ export default function ReviewQueue() {
               </div>
             </div>
             <label className="mt-6 block text-sm font-semibold" htmlFor="review-notes">
-              Review notes
-              <textarea id="review-notes" rows={4} value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={2000} className="mt-2 w-full rounded-xl border border-[#dce4dc] px-4 py-3 font-normal outline-none focus:border-[#49866c] focus:ring-2 focus:ring-[#49866c]/15" placeholder="Add notes for the case record" />
+              Review notes {notes.trim() ? "" : "(required to deny)"}
+              <textarea id="review-notes" rows={4} value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={2000} className="mt-2 w-full rounded-xl border border-[#dce4dc] px-4 py-3 font-normal outline-none focus:border-[#49866c] focus:ring-2 focus:ring-[#49866c]/15" placeholder="Add notes or a reason for the decision" />
             </label>
             {error && <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900" role="alert">{error}</p>}
             <div className="mt-6 flex flex-wrap justify-end gap-3">

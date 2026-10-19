@@ -69,7 +69,7 @@ export default function IntakeWizard() {
       if (!caseId) throw new Error("The server did not return a case tracking ID.");
       const shortId = String(caseId).replaceAll("-", "").slice(0, 4).toUpperCase();
       setConfirmation({
-        trackingId: `INT-${new Date().getFullYear()}-${shortId}`,
+        trackingId: caseRecord.trackingId || caseRecord.tracking_id || `INT-${new Date().getFullYear()}-${shortId}`,
         caseId,
       });
     } catch (requestError) {

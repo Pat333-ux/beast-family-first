@@ -43,7 +43,8 @@ async function sendWebhook(url, payload, {
       'Content-Type': 'application/json',
       'X-BEAST-Signature': signature
     },
-    body
+    body,
+    signal: AbortSignal.timeout(10_000)
   });
   if (!response.ok) {
     throw new Error(`Webhook delivery failed with status ${response.status}`);
