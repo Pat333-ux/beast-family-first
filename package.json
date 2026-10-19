@@ -1,10 +1,11 @@
 {
   "name": "beast-family-first",
   "version": "1.0.0",
-  "description": "BEAST Family First Program. Needs assessment, rules engine, human review, ledger integration.",
-  "main": "index.js",
+  "description": "Local reference implementation of the BEAST Family First human-services architecture.",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "test": "node --test"
   },
   "repository": {
     "type": "git",
@@ -12,6 +13,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "type": "commonjs"
 }
