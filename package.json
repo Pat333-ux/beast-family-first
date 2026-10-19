@@ -2,12 +2,14 @@
   "name": "beast-family-first",
   "version": "1.0.0",
   "description": "BEAST Family First Program. Needs assessment, rules engine, human review, ledger integration.",
-  "main": "index.js",
+  "main": "src/server.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "migrate": "node db/migrate.js",
+    "test": "jest --runInBand"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "overrides": {
+    "sprintf-js": "1.1.3"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
@@ -24,7 +29,7 @@
     "pg": "^8.16.3"
   },
   "devDependencies": {
-    "jest": "^30.2.0",
+    "jest": "^30.5.2",
     "supertest": "^7.1.4"
   }
 }
