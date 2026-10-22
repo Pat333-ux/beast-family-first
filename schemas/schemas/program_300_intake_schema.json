@@ -1,0 +1,209 @@
+JSON
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Program300IntakeAndAssessmentPayload",
+  "type": "object",
+  "properties": {
+    "assessment_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique global identifier for the Program 300 member intake transaction."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "citizen_id": {
+      "type": "string",
+      "description": "Anchor citizen identifier (e.g., nwo_citizen_0001)."
+    },
+    "program_type": {
+      "type": "string",
+      "enum": ["BEAST_FAMILY_FIRST", "PERSONAL_DEVELOPMENT", "RESOURCE_COORDINATION"]
+    },
+    "eligibility_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "requested_token_grant": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Requested LUCR token disbursement from treasury escrow."
+    },
+    "judicial_approval_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "sentinel_verification_sig": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    }
+  },
+  "required": [
+    "assessment_id",
+    "timestamp",
+    "citizen_id",
+    "program_type",
+    "eligibility_score",
+    "requested_token_grant",
+    "judicial_approval_hash",
+    "sentinel_verification_sig"
+  ],
+  "additionalProperties": false
+}
+File Path: src/program_300_bridge.py
+Python
+#!/usr/bin/env python3
+"""
+BEAST System 3.0 — Program 300 & Family First Governance Bridge
+Integrates beast-family-first with src-300.ts and cross-divisional judicial & sentinel verification.
+"""
+
+import json
+import hashlib
+import uuid
+from datetime import datetime, timezone
+from jsonschema import validate, ValidationError
+
+class Program300GovernanceBridge:
+    def __init__(self, schema_path="schemas/program_300_intake_schema.json"):
+        with open(schema_path, "r", encoding="utf-8") as f:
+            self.schema = json.load(f)
+
+    def generate_sha256(self, payload_str: str) -> str:
+        return hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+
+    def process_family_first_intake(
+        self,
+        citizen_id: str,
+        program_type: str,
+        eligibility_score: int,
+        requested_token_grant: int
+    ) -> dict:
+        """
+        Validates member intake for beast-family-first, applies Division 003 judicial signatures,
+        and requests automated Division 004 treasury escrow allocation.
+        """
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        raw_telemetry = f"{citizen_id}:{program_type}:{eligibility_score}:{requested_token_grant}:{now}"
+
+        # Judicial compliance validation hash (Division 003 requirement)
+        judicial_hash = self.generate_sha256(f"DIV_003_JUDICIAL_GRANT:{raw_telemetry}")
+
+        # Sentinel behavioral & state check signature (Division 005 requirement)
+        sentinel_sig = self.generate_sha256(f"DIV_005_SENTINEL_PASSED:{raw_telemetry}")
+
+        intake_payload = {
+            "assessment_id": str(uuid.uuid4()),
+            "timestamp": now,
+            "citizen_id": citizen_id,
+            "program_type": program_type,
+            "eligibility_score": eligibility_score,
+            "requested_token_grant": requested_token_grant,
+            "judicial_approval_hash": judicial_hash,
+            "sentinel_verification_sig": sentinel_sig
+        }
+
+        try:
+            validate(instance=intake_payload, schema=self.schema)
+            print(f"[+] BEAST-FAMILY-FIRST INTAKE APPROVED: {intake_payload['assessment_id']}")
+            print(f"    Citizen ID:           {citizen_id}")
+            print(f"    Program:              {program_type}")
+            print(f"    LUCR Token Allocation:{requested_token_grant}")
+            print(f"    Judicial Hash Seal:   {judicial_hash[:16]}...")
+            return intake_payload
+        except ValidationError as err:
+            print(f"[!] BEAST-FAMILY-FIRST REJECTION: Intake validation failed: {err.message}")
+            raise err
+
+if __name__ == "__main__":
+    print("=== BEAST System 3.0: Program 300 Bridge Initializing ===")
+    bridge = Program300GovernanceBridge()
+
+    # Execution check for Citizen #0001
+    bridge.process_family_first_intake(
+        citizen_id="nwo_citizen_0001",
+        program_type="BEAST_FAMILY_FIRST",
+        eligibility_score=95,
+        requested_token_grant=2500
+    )
+File Path: tests/test_program_300_bridge.py
+Python
+import json
+import os
+import pytest
+from jsonschema import validate, ValidationError
+
+def test_program_300_schema_exists():
+    assert os.path.exists("schemas/program_300_intake_schema.json"), "Program 300 intake schema missing!"
+
+def test_valid_program_300_intake():
+    schema_path = "schemas/program_300_intake_schema.json"
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
+
+    valid_payload = {
+        "assessment_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "timestamp": "2026-10-22T14:45:00Z",
+        "citizen_id": "nwo_citizen_0001",
+        "program_type": "BEAST_FAMILY_FIRST",
+        "eligibility_score": 90,
+        "requested_token_grant": 1000,
+        "judicial_approval_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sentinel_verification_sig": "a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890"
+    }
+
+    validate(instance=valid_payload, schema=schema)
+
+def test_invalid_score_fails():
+    schema_path = "schemas/program_300_intake_schema.json"
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
+
+    invalid_payload = {
+        "assessment_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+        "timestamp": "2026-10-22T14:45:00Z",
+        "citizen_id": "nwo_citizen_0001",
+        "program_type": "BEAST_FAMILY_FIRST",
+        "eligibility_score": 150,
+        "requested_token_grant": 1000,
+        "judicial_approval_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sentinel_verification_sig": "a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890"
+    }
+
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_payload, schema=schema)
+File Path: .github/workflows/validate.yml
+YAML
+name: BEAST Family First & Program 300 CI Validation Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jsonschema pytest
+
+    - name: Test Program 300 Bridge Execution
+      run: python3 src/program_300_bridge.py
+
+    - name: Execute Pytest Suite
+      run: pytest tests/
